@@ -4,18 +4,30 @@ import Input from '@/components/Input';
 import ScreenWrapper from '@/components/ScreenWrapper';
 import { colors, spacingY } from '@/constants/theme';
 import { verticalScale } from '@/utils/styling';
+import { useRouter } from 'expo-router';
 import * as Icons from 'phosphor-react-native';
-import React, { useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Typo from '../../components/Typo';
 
 const Login = () => {
 
   const emailRef = useRef('');
     const passwordRef = useRef("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const router = useRouter();
 
     const handleSubmit = async () => {
-      // Submit logic here
+      if(!emailRef.current || !passwordRef.current) {
+        Alert.alert('Login', "Please fill all fields");
+        return;
+      }
+      console.log('email:', emailRef.current);
+      console.log('password:', passwordRef.current);
+      console.log('Good to go!');
+      
+      
     }
 
   return (
@@ -63,19 +75,25 @@ const Login = () => {
             }
           />
 
-          <Typo size={14} 
-           color={colors.text} 
-           style={{alignSelf: "flex-end"}}>
+          <Typo size={14} color={colors.text} style={{ alignSelf: "flex-end" }}>
             forgot password
           </Typo>
 
-          <Button onPress={handleSubmit}>
+          <Button loading={isLoading} onPress={handleSubmit}>
+            <Typo fontWeight={"700"} color={colors.black} size={20}>
+              Login
+            </Typo>
           </Button>
         </View>
 
         {/* footer */}
         <View style={styles.footer}>
-
+          <Typo color={colors.neutral300} size={15}>
+            Don't have an account?
+          </Typo>
+          <Pressable onPress={() => router.push("/(auth)/register")}>
+            <Typo size={15} fontWeight={"700"} color={colors.primary}>Sign up</Typo>
+          </Pressable>
         </View>
       </View>
     </ScreenWrapper>
