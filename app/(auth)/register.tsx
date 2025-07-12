@@ -3,6 +3,7 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { colors, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
@@ -17,6 +18,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+  const { register: registerUser } = useAuth();
 
   const handleSubmit = async () => {
     if (!nameRef.current || !emailRef.current || !passwordRef.current) {
@@ -24,10 +26,18 @@ const Register = () => {
       return;
     }
 
-    console.log("name:", nameRef.current);
-    console.log("email:", emailRef.current);
-    console.log("password:", passwordRef.current);
-    console.log("Good to go!");
+    setIsLoading(true);
+    const res = await registerUser(
+      nameRef.current,
+      emailRef.current,
+      passwordRef.current
+    );
+    
+    setIsLoading(false);
+    console.log('register result:', res);
+    if(!res.success) {
+      Alert.alert("Sign up", res.msg);
+    }
   };
 
   return (
