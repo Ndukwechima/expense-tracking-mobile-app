@@ -1,12 +1,13 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import ScreenWrapper from '@/components/ScreenWrapper';
+import React from 'react';
+import { StyleSheet, Text } from 'react-native';
 
 const Profile = () => {
   return (
-    <View>
+    <ScreenWrapper>
       <Text>Profile</Text>
-    </View>
-  )
+    </ScreenWrapper>
+  );
 }
 
 export default Profile
