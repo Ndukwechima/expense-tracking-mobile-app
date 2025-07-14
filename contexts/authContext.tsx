@@ -48,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("error message", msg);
             if (msg.includes("auth/invalid-email"))
               msg = "Wrong credentials";
+             if (msg.includes("auth/invalid-credential")) msg = "Wrong credentials";
 
       
       return { success: false, msg };
