@@ -10,8 +10,8 @@ import { useAuth } from "@/contexts/authContext";
 import { createOrUpdateWallet } from "@/services/walletService";
 import { WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -23,6 +23,16 @@ const WalletModal = () => {
   const { user, updateUserData } = useAuth();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const oldWallet: {name: string, image: string, id: string} = useLocalSearchParams();
+   useEffect(() => {
+    if (oldWallet?.id) {
+      setWallet({
+        name: oldWallet?.name,
+        image: oldWallet?.image,
+      });
+    }
+   }, []);
 
   const [wallet, setWallet] = useState<WalletType>({
     name: "",
@@ -42,7 +52,8 @@ const WalletModal = () => {
       uid: user?.uid,
     }
 
-    // todo: include wallet id if updating
+    if (oldWallet?.id) data.id = oldWallet?.id;
+
     setLoading(true);
     const res = await createOrUpdateWallet(data);
     setLoading(false);
@@ -59,7 +70,7 @@ const WalletModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="New Wallet"
+          title={oldWallet?.id ? "Update Wallet" :"New Wallet"}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -91,7 +102,7 @@ const WalletModal = () => {
       <View style={styles.footer}>
         <Button onPress={onsubmit} loading={loading} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            Add Wallet
+            {oldWallet?.id ? "Update Wallet" : "Add Wallet"}
           </Typo>
         </Button>
       </View>

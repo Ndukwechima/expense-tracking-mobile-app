@@ -1,29 +1,48 @@
+import Loading from "@/components/Loading";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
+import useFetchData from "@/hooks/useFetchData";
+import { WalletType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
+import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
-import React from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import WalletListItem from '../../components/WalletListItem';
 
 const Wallet = () => {
   const router = useRouter();
+  const { user } = useAuth();
 
-  const getTotalBalance = () => {
-    return 2344;
-  };
+  const {
+    data: wallets,
+    error,
+    loading,
+  } = useFetchData<WalletType>("wallets", [
+    where("uid", "==", user?.uid),
+    orderBy("created", "desc"),
+  ]);
+
+  // console.log("wallets:", wallets.length);
+
+  const getTotalBalance = () => 
+    wallets.reduce((total, item) => {
+      total = total + (item.amount || 0);
+      return total;
+    }, 0);
+ 
   return (
     <ScreenWrapper style={{ backgroundColor: colors.black }}>
       <View style={styles.container}>
         {/* Balance  view*/}
         <View style={styles.balanceView}>
           <View style={{ alignItems: "center" }}>
-            <Typo size={45} fontWeight={"500"} >
+            <Typo size={45} fontWeight={"500"}>
               ${getTotalBalance()?.toFixed(2)}
             </Typo>
-            <Typo size={16} color={colors.neutral300} >
+            <Typo size={16} color={colors.neutral300}>
               Total Balance
             </Typo>
           </View>
@@ -31,22 +50,34 @@ const Wallet = () => {
 
         {/* wallets */}
         <View style={styles.wallets}>
-        {/* header */}
-        <View style={styles.flexRow}>
-           <Typo size={20} fontWeight={"500"}>My Wallets</Typo>
-           <TouchableOpacity onPress={() => router.push("/(modals)/walletModal")}>
-          <Icons.PlusCircleIcon
-           weight="fill"
-           size={verticalScale(33)}
-           color={colors.primary}
-          />
-           </TouchableOpacity>
-        </View>
+          {/* header */}
+          <View style={styles.flexRow}>
+            <Typo size={20} fontWeight={"500"}>
+              My Wallets
+            </Typo>
+            <TouchableOpacity
+              onPress={() => router.push("/(modals)/walletModal")}
+            >
+              <Icons.PlusCircleIcon
+                weight="fill"
+                size={verticalScale(33)}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          </View>
 
-        {/* todo: add wallet list */}
+          {/* todo: add wallet list */}
+          {loading && <Loading />}
+          <FlatList
+          data={wallets}
+          renderItem={({item, index}) =>{
+            return <WalletListItem item={item} index={index} router={router} />
+          }}
+          contentContainerStyle={styles.listStyle}
+          />
         </View>
       </View>
-    </ScreenWrapper> 
+    </ScreenWrapper>
   );
 };
 
@@ -81,7 +112,7 @@ const styles = StyleSheet.create({
     paddingTop: spacingX._25,
   },
 
-  lifeStyle: {
+  listStyle: {
     paddingVertical: spacingY._25,
     paddingTop: spacingY._15,
   },
